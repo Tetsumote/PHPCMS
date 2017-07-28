@@ -1,5 +1,5 @@
 <footer>
-	&copy; <?php echo date('Y'); ?> 2017 Globe Bank
+	&copy; <?php echo date('Y'); ?> Globe Bank
 </footer>
 
 </body>

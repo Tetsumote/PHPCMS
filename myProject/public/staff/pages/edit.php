@@ -1,30 +1,32 @@
 <?php 
 require_once('../../../private/initialize.php'); 
 
-$test = $_GET['test'] ?? '';
 
-if($test == '404'){
-	error_404();
-}elseif($test == '500'){
-	error_500();
-}elseif($test == 'redirect'){
-	redirect_to(url_for('/staff/pages/index.php'));
+if(!isset($_GET['id'])){
+redirect_to(url_for('/staff/pages/index.php'));	
 }
-$menu_name = '';
-$position = '';
-$visible = '';
+
+$id = $_GET['id'];
 	
 	
 if(is_post_request()){
-$menu_name = $_POST['menu_name'] ?? '';
-$position = $_POST['position'] ?? '';
-$visible = $_POST['visible'] ?? '';
+$page = [];
+$page['id'] = $id;	
+$page['menu_name'] = $_POST['menu_name'] ?? '';
+$page['position'] = $_POST['position'] ?? '';
+$page['visible'] = $_POST['visible'] ?? '';
+$page['subject_id'] = $_POST['subject_id'] ?? '';
+$page['content'] = $_POST['content'] ?? '';
 
-echo "Form parameters<br />";
-echo "Menu name: " . $menu_name . "<br />";
-echo "Position: " . $position . "<br />";
-echo "Visible: " . $visible . "<br />";
+$result = update_page($page);
+redirect_to(url_for('/staff/pages/show.php?id=' . $id));
 
+}else{
+	//redirect_to(url_for('/staff/subjects/new.php'));
+	$page = find_page_by_id($id);
+	$page_set = find_all_pages();
+	$page_count = mysqli_num_rows($page_set);
+	mysqli_free_result($page_set);
 }
 ?>
 <?php $page_title = 'Create Page'; ?>
@@ -37,16 +39,34 @@ echo "Visible: " . $visible . "<br />";
   <div class="subject new">
     <h1>Create Page</h1>
 
-    <form action="<?php echo url_for('staff/pages/edit.php'); ?>" method="post">
+    <form action="<?php echo url_for('/staff/pages/edit.php?id=' . h(u($id))); ?>" method="post">
       <dl>
         <dt>Menu Name</dt>
-        <dd><input type="text" name="menu_name" value="<?php echo h($menu_name);?>" /></dd>
+        <dd><input type="text" name="menu_name" value="<?php echo h($page['menu_name']); ?>" /></dd>
+      </dl>
+       <dl>
+      	<dt>Subject ID</dt>
+      	<dd>
+      		<select name="subject_id">
+      			<option value="1">1</option>
+      			<option value="2">2</option>
+      			<option value="3">3</option>
+      		</select>
+      	</dd>
       </dl>
       <dl>
         <dt>Position</dt>
         <dd>
           <select name="position">
-            <option value="1"<?php if($position == "1"){echo " selected";}?>>1</option>
+             <?php
+			  for($i=1; $i <= $page_count; $i++){
+				  echo "<option value=\"{$i}\"";
+				  if($page["position"] == $i){
+					  echo " selected";
+				  }
+				  echo ">{$i}</option>";
+			  }
+			  ?>
           </select>
         </dd>
       </dl>
@@ -54,8 +74,12 @@ echo "Visible: " . $visible . "<br />";
         <dt>Visible</dt>
         <dd>
           <input type="hidden" name="visible" value="0" />
-          <input type="checkbox" name="visible" value="1"<?php if($visible == "1"){echo " checked";}?> />
+          <input type="checkbox" name="visible" value="1"<?php if($page['visible'] == "1"){echo " checked";}?> />
         </dd>
+      </dl>
+      <dl>
+      	<dt>Content</dt>
+      	<textarea name="content" id="content1" rows="4" cols="50"><?php echo h($page['content']);?></textarea>
       </dl>
       <div id="operations">
         <input type="submit" value="Create Subject" />
