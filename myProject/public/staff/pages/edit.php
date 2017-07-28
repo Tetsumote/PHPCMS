@@ -18,16 +18,22 @@ $page['visible'] = $_POST['visible'] ?? '';
 $page['subject_id'] = $_POST['subject_id'] ?? '';
 $page['content'] = $_POST['content'] ?? '';
 
-$result = update_page($page);
-redirect_to(url_for('/staff/pages/show.php?id=' . $id));
 
+$result = update_page($page);
+if($result === true){
+	redirect_to(url_for('/staff/pages/show.php?id=' . $id));
+}else{
+	$errors = $result;
+	//var_dump($errors);
+}
 }else{
 	//redirect_to(url_for('/staff/subjects/new.php'));
+	
+}
 	$page = find_page_by_id($id);
 	$page_set = find_all_pages();
 	$page_count = mysqli_num_rows($page_set);
 	mysqli_free_result($page_set);
-}
 ?>
 <?php $page_title = 'Create Page'; ?>
 <?php include(SHARED_PATH . '/staff_header.php'); ?>
@@ -38,7 +44,7 @@ redirect_to(url_for('/staff/pages/show.php?id=' . $id));
 
   <div class="subject new">
     <h1>Edit Page</h1>
-
+<?php echo display_errors($errors); ?>
      <form action="<?php echo url_for('/staff/pages/edit.php?id=' . h(u($id))); ?>" method="post">
       <dl>
         <dt>Subject</dt>

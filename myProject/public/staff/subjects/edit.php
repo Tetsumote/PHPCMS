@@ -8,7 +8,6 @@ redirect_to(url_for('/staff/subjects/index.php'));
 
 $id = $_GET['id'];
 
-
 if(is_post_request()){
 	
 $subject = [];
@@ -18,16 +17,22 @@ $subject['position'] = $_POST['position'] ?? '';
 $subject['visible'] = $_POST['visible'] ?? '';
 
 $result = update_subject($subject);
-redirect_to(url_for('/staff/subjects/show.php?id=' . $id));
+if($result === true){
+	redirect_to(url_for('/staff/subjects/show.php?id=' . $id));
+}else{
+	$errors = $result;
+	//var_dump($errors);
+}
+
 	
 }else{
-	//redirect_to(url_for('/staff/subjects/new.php'));
+	
 	$subject = find_subject_by_id($id);
+	
+}
 	$subject_set = find_all_subjects();
 	$subject_count = mysqli_num_rows($subject_set);
 	mysqli_free_result($subject_set);
-}
-
 ?>
 <?php $page_title = 'Edit Subject'; ?>
 <?php include(SHARED_PATH . '/staff_header.php'); ?>
@@ -38,6 +43,8 @@ redirect_to(url_for('/staff/subjects/show.php?id=' . $id));
 
   <div class="subject edit">
     <h1>Edit Subject</h1>
+    
+    <?php echo display_errors($errors); ?>
 
     <form action="<?php echo url_for('/staff/subjects/edit.php?id=' . h(u($id))); ?>" method="post">
       <dl>

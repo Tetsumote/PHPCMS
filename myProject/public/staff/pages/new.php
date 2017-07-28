@@ -1,11 +1,29 @@
 <?php 
 require_once('../../../private/initialize.php'); 
+if(is_post_request()) {
 
+  $page = [];
+  $page['menu_name'] = $_POST['menu_name'] ?? '';
+  $page['position'] = $_POST['position'] ?? '';
+  $page['visible'] = $_POST['visible'] ?? '';
+  $page['subject_id']  = $_POST['subject_id'] ?? '';
+  $page['content']  = $_POST['content'] ?? '';
+
+  $result = insert_page($page);
+  if($result === true) {
+    $new_id = mysqli_insert_id($db);
+    redirect_to(url_for('/staff/pages/show.php?id=' . $new_id));
+  } else {
+    $errors = $result;
+  }
+
+}else{
+
+  // display the blank form
+}
 $page_set = find_all_pages();
 $page_count = mysqli_num_rows($page_set) + 1;
 mysqli_free_result($page_set);
-
-$page = [];
 $page["position"] = $page_count;
 $page = find_page_by_id($page_count);
 ?>
@@ -18,8 +36,8 @@ $page = find_page_by_id($page_count);
 
   <div class="subject new">
     <h1>Create Page</h1>
-
-    <form action="<?php echo url_for('staff/pages/create.php'); ?>" method="post">
+ 	<?php echo display_errors($errors); ?>
+    <form action="<?php echo url_for('staff/pages/new.php'); ?>" method="post">
       <dl>
         <dt>Menu Name</dt>
         <dd><input type="text" name="menu_name" value="" /></dd>
