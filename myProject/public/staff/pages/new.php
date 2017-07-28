@@ -7,7 +7,7 @@ mysqli_free_result($page_set);
 
 $page = [];
 $page["position"] = $page_count;
-
+$page = find_page_by_id($page_count);
 ?>
 <?php $page_title = 'Create Page'; ?>
 <?php include(SHARED_PATH . '/staff_header.php'); ?>
@@ -25,15 +25,24 @@ $page["position"] = $page_count;
         <dd><input type="text" name="menu_name" value="" /></dd>
       </dl>
       <dl>
-      	<dt>Subject ID</dt>
-      	<dd>
-      		<select name="subject_id">
-      			<option value="1">1</option>
-      			<option value="2">2</option>
-      			<option value="3">3</option>
-      		</select>
-      	</dd>
+        <dt>Subject</dt>
+        <dd>
+          <select name="subject_id">
+          <?php
+            $subject_set = find_all_subjects();
+            while($subject = mysqli_fetch_assoc($subject_set)) {
+              echo "<option value=\"" . h($subject['id']) . "\"";
+              if($page["subject_id"] == $subject['id']) {
+                echo " selected";
+              }
+              echo ">" . h($subject['menu_name']) . "</option>";
+            }
+            mysqli_free_result($subject_set);
+          ?>
+          </select>
+        </dd>
       </dl>
+      <dl>
       <dl>
         <dt>Position</dt>
         <dd>
